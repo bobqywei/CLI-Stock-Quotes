@@ -11,6 +11,8 @@ STOCKS = [l.strip() for l in lines]
 
 URL = 'https://web.tmxmoney.com/quote.php?qm_symbol={}'
 
+headers = ['SYMBOL', 'PRICE', '%-CHANGE', 'CHANGE', 'DAY-HI', 'DAY-LO', 'YEAR-HI', 'YEAR-LO']
+
 def get_next_number(s):
     out = ""
     found = False
@@ -50,22 +52,22 @@ class Stock:
         self.colour = 'green' if self.change >= 0 else 'red'
 
     def print(self):
-        output = ' {:8s}|{}|{}|{}|{:8.2f}|{:8.2f}|{:8.2f}|{:8.2f} '.format(
+        output = '{:>12s}|{}|{}|{}|{:12.2f}|{:12.2f}|{:12.2f}|{:12.2f}'.format(
             self.symbol,
-            colored('{:8.2f}'.format(self.price), self.colour),
-            colored('{:7.2f}%'.format(self.change_pct), self.colour),
-            colored('{:8.2f}'.format(self.change), self.colour),
+            colored('{:12.2f}'.format(self.price), self.colour),
+            colored('{:11.2f}%'.format(self.change_pct), self.colour),
+            colored('{:12.2f}'.format(self.change), self.colour),
             self.high, self.low, self.year_high, self.year_low
         )
         print(output)
-        print('_________________________________________________________________________')
+        print('_'*(13*len(headers)-1))
 
 
 def printall(statuses, stocks):
     os.system('clear')
     print('{}\n'.format(' - '.join(statuses)))
-    print(' SYMBOL  |  PRICE | %CHANGE| CHANGE | DAY-HI | DAY-LO | YEAR-HI| YEAR-LO ')
-    print('=========================================================================')
+    print('|'.join(['{:>12s}'.format(x) for x in headers]))
+    print('='*(13*len(headers)-1))
     for stock in stocks:
         stock.print()
 
