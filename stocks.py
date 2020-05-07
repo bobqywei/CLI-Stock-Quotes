@@ -36,24 +36,29 @@ class Stock:
         self.year_high = 0.0
         self.year_low = 0.0
         self.colour = 'green'
+        self.status = 0
 
     def update(self):
         with urllib.request.urlopen(URL.format(self.symbol)) as url:
             page = url.read().decode('utf8')
 
-        self.price = float(get_next_number(page.split('Last Price:')[-1]))
-        self.high = float(get_next_number(page.split('Day High:')[-1]))
-        self.low = float(get_next_number(page.split('Day Low:')[-1]))
-        self.prev = float(get_next_number(page.split('Prev. Close: ')[-1]))
-        self.change = self.price - self.prev
-        self.change_pct = (self.change / self.prev) * 100.0
-        self.year_low = float(get_next_number(page.split('52 Week Low: ')[-1]))
-        self.year_high = float(get_next_number(page.split('52 Week High: ')[-1]))
-        self.colour = 'green' if self.change >= 0 else 'red'
+        if page.find('Last Price:') != -1:
+            self.price = float(get_next_number(page.split('Last Price:')[-1]))
+            self.high = float(get_next_number(page.split('Day High:')[-1]))
+            self.low = float(get_next_number(page.split('Day Low:')[-1]))
+            self.prev = float(get_next_number(page.split('Prev. Close: ')[-1]))
+            self.change = self.price - self.prev
+            self.change_pct = (self.change / self.prev) * 100.0
+            self.year_low = float(get_next_number(page.split('52 Week Low: ')[-1]))
+            self.year_high = float(get_next_number(page.split('52 Week High: ')[-1]))
+            self.colour = 'green' if self.change >= 0 else 'red'
+            self.status = 0
+        else:
+            self.status = -1
 
     def print(self):
-        output = '{:>12s}|{}|{}|{}|{:12.2f}|{:12.2f}|{:12.2f}|{:12.2f}'.format(
-            self.symbol,
+        output = '{}|{}|{}|{}|{:12.2f}|{:12.2f}|{:12.2f}|{:12.2f}'.format(
+            '{:^12s}'.format(self.symbol) if self.status == 0 else colored('{:^12s}'.format(self.symbol), 'yellow'),
             colored('{:12.2f}'.format(self.price), self.colour),
             colored('{:11.2f}%'.format(self.change_pct), self.colour),
             colored('{:12.2f}'.format(self.change), self.colour),
@@ -66,7 +71,7 @@ class Stock:
 def printall(statuses, stocks):
     os.system('clear')
     print('{}\n'.format(' - '.join(statuses)))
-    print('|'.join(['{:>12s}'.format(x) for x in headers]))
+    print('|'.join(['{:^12s}'.format(x) for x in headers]))
     print('='*(13*len(headers)-1))
     for stock in stocks:
         stock.print()
