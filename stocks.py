@@ -42,19 +42,22 @@ class Stock:
         with urllib.request.urlopen(URL.format(self.symbol)) as url:
             page = url.read().decode('utf8')
 
-        if page.find('Last Price:') != -1:
+        self.status = 0
+        
+        # if page.find('Last Price:') != -1:
+        try:
             self.price = float(get_next_number(page.split('Last Price:')[-1]))
             self.high = float(get_next_number(page.split('Day High:')[-1]))
             self.low = float(get_next_number(page.split('Day Low:')[-1]))
             self.prev = float(get_next_number(page.split('Prev. Close: ')[-1]))
-            self.change = self.price - self.prev
-            self.change_pct = (self.change / self.prev) * 100.0
             self.year_low = float(get_next_number(page.split('52 Week Low: ')[-1]))
             self.year_high = float(get_next_number(page.split('52 Week High: ')[-1]))
-            self.colour = 'green' if self.change >= 0 else 'red'
-            self.status = 0
-        else:
+        except:
             self.status = -1
+            
+        self.change = self.price - self.prev
+        self.change_pct = (self.change / self.prev) * 100.0
+        self.colour = 'green' if self.change >= 0 else 'red'
 
     def print(self):
         output = '{}|{}|{}|{}|{:12.2f}|{:12.2f}|{:12.2f}|{:12.2f}'.format(
@@ -83,4 +86,4 @@ while True:
         now = datetime.datetime.now()
         stock.update()
         printall([str(now)], stocks)
-    time.sleep(10)
+    #time.sleep(10)
